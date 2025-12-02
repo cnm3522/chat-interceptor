@@ -1,0 +1,5 @@
+# 键位类别
+key.categories.chatinterceptor=聊天拦截器
+
+# 键位描述
+key.chatinterceptor.prefix=输入聊天前缀

@@ -1,52 +1,35 @@
-# Gradle 构建文件
+# Gradle
 .gradle/
 build/
 out/
 bin/
 
-# IDE 文件
+# IDE
 .idea/
 *.iml
-*.ipr
-*.iws
 .vscode/
-
-# Eclipse
 .settings/
 .project
 .classpath
 
-# 编译文件
-*.class
-
-# 本地配置
-*.properties
+# Runtime
 run/
 eclipse/
-gradle.properties
 
-# 日志文件
+# Local
+*.properties
+.gradle.properties
+
+# Logs
 logs/
 *.log
 
-# 临时文件
-*.tmp
-*.temp
-
-# 系统文件
+# System
 .DS_Store
 Thumbs.db
 
-# 游戏运行文件
+# Minecraft
 .minecraft/
 saves/
 resourcepacks/
 shaderpacks/
-
-# 构建产物
-/libs/
-/output/
-/releases/
-
-# 依赖缓存
-.gradle/caches/

@@ -1,5 +1,6 @@
 package a3522.chatinterceptor.config;
 
+import a3522.chatinterceptor.ChatInterceptorMod;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -8,10 +9,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Keyboard;
+
 import java.io.*;
 import java.nio.file.*;
 
 @Config(modid = "chatinterceptor", category = "chat_settings")
+@SuppressWarnings("unchecked")
 public class ChatConfig {
 
     @Config.Comment("是否启用聊天拦截")
@@ -22,29 +26,37 @@ public class ChatConfig {
     @Config.Name("默认状态")
     public static boolean defaultChatEnabled = false;
 
-    @Config.Comment("默认聊天前缀（#被保留给Baritone使用）")
+    @Config.Comment("默认聊天前缀")
     @Config.Name("默认前缀")
     public static String defaultPrefix = "";
 
-    // 客户端数据存储文件路径
     private static final String CLIENT_DATA_FILE = "config/chatinterceptor_client.dat";
-
-    // 玩家数据缓存（客户端本地存储）
     private static PlayerChatData playerData = null;
 
-    // 玩家聊天数据类
     public static class PlayerChatData implements Serializable {
         private static final long serialVersionUID = 1L;
         public boolean chatEnabled;
         public String chatPrefix;
+        public boolean keyControlEnabled;
+        public String keyPrefixChar;
+        public int keyBindingCode;
+        public boolean onlyInGame;
 
         public PlayerChatData(boolean enabled, String prefix) {
             this.chatEnabled = enabled;
-            this.chatPrefix = prefix;
+            this.chatPrefix = (prefix != null) ? prefix : "";
+            this.keyControlEnabled = true;           // 关键：默认启用按键控制
+            this.keyPrefixChar = "'";                // 关键：默认前缀字符
+            this.keyBindingCode = Keyboard.KEY_APOSTROPHE; // 默认 ' 键
+            this.onlyInGame = true;                  // 默认仅游戏界面
+        }
+
+        // 可选：添加一个无参构造函数，用于序列化兼容性
+        public PlayerChatData() {
+            this(defaultChatEnabled, defaultPrefix);
         }
     }
 
-    // 加载玩家数据（客户端）
     @SideOnly(Side.CLIENT)
     public static void loadPlayerData() {
         try {
@@ -54,23 +66,33 @@ public class ChatConfig {
                     Object obj = ois.readObject();
                     if (obj instanceof PlayerChatData) {
                         playerData = (PlayerChatData) obj;
+                        ChatInterceptorMod.logger.info("成功加载玩家聊天数据");
+
+                        // 确保关键字段不为null（防止旧版本数据问题）
+                        if (playerData.keyPrefixChar == null) {
+                            playerData.keyPrefixChar = "'";
+                        }
+                        if (playerData.chatPrefix == null) {
+                            playerData.chatPrefix = "";
+                        }
+                        return; // 成功加载，直接返回
                     }
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
-            // 使用默认数据
+            ChatInterceptorMod.logger.error("加载玩家数据失败: " + e.getMessage(), e);
+        } catch (Exception e) {
+            ChatInterceptorMod.logger.error("加载玩家数据时发生未知错误: " + e.getMessage(), e);
         }
 
-        if (playerData == null) {
-            playerData = new PlayerChatData(defaultChatEnabled, defaultPrefix);
-        }
+        // 如果执行到这里，说明加载失败
+        ChatInterceptorMod.logger.warn("加载失败或文件不存在，将使用默认值");
+        // 注意：这里不创建playerData，让getPlayerData()处理
     }
 
-    // 保存玩家数据（客户端）
     @SideOnly(Side.CLIENT)
     public static void savePlayerData() {
         try {
-            // 确保目录存在
             Path configDir = Paths.get("config");
             if (!Files.exists(configDir)) {
                 Files.createDirectories(configDir);
@@ -86,30 +108,41 @@ public class ChatConfig {
         }
     }
 
-    // 获取聊天数据（客户端）
     @SideOnly(Side.CLIENT)
     public static PlayerChatData getPlayerData() {
         if (playerData == null) {
             loadPlayerData();
+
+            // 关键修复：如果加载失败，创建默认数据
+            if (playerData == null) {
+                ChatInterceptorMod.logger.warn("无法加载玩家数据，创建默认配置");
+                playerData = new PlayerChatData(defaultChatEnabled, defaultPrefix);
+
+                // 确保默认值正确设置
+                playerData.keyControlEnabled = true;      // 确保为true
+                playerData.keyPrefixChar = "'";           // 确保前缀字符
+                playerData.keyBindingCode = Keyboard.KEY_APOSTROPHE;
+                playerData.onlyInGame = true;
+
+                // 立即保存默认配置
+                savePlayerData();
+            }
         }
         return playerData;
     }
 
-    // 更新聊天状态（客户端）
     @SideOnly(Side.CLIENT)
     public static void setChatEnabled(boolean enabled) {
         getPlayerData().chatEnabled = enabled;
         savePlayerData();
     }
 
-    // 更新聊天前缀（客户端）
     @SideOnly(Side.CLIENT)
     public static void setChatPrefix(String prefix) {
         getPlayerData().chatPrefix = prefix;
         savePlayerData();
     }
 
-    // 切换聊天前缀（客户端）
     @SideOnly(Side.CLIENT)
     public static String toggleChatPrefix(String prefix) {
         PlayerChatData data = getPlayerData();
@@ -128,6 +161,27 @@ public class ChatConfig {
         }
     }
 
+    public static String validateAndSetKeyPrefix(String prefixChar) {
+        if (prefixChar == null || prefixChar.isEmpty()) {
+            return "错误：前缀不能为空";
+        }
+
+        if (prefixChar.length() != 1) {
+            return "错误：前缀必须是单个字符";
+        }
+
+        char c = prefixChar.charAt(0);
+        if (c == '#' || c == '/') {
+            return "错误：不能使用 # 或 / 作为前缀";
+        }
+
+        if (c < 32 || c == 127) {
+            return "错误：无效的控制字符";
+        }
+
+        return null;
+    }
+
     @Mod.EventBusSubscriber(modid = "chatinterceptor", value = Side.CLIENT)
     public static class ConfigEventHandler {
         @SubscribeEvent
@@ -138,15 +192,11 @@ public class ChatConfig {
             }
         }
 
-        // 游戏启动时自动加载数据
         @SubscribeEvent
         @SideOnly(Side.CLIENT)
         public static void onClientTick(TickEvent.ClientTickEvent event) {
-            if (event.phase == TickEvent.Phase.START) {
-                // 确保数据已加载
-                if (playerData == null) {
-                    loadPlayerData();
-                }
+            if (event.phase == TickEvent.Phase.START && playerData == null) {
+                loadPlayerData();
             }
         }
     }

@@ -4,6 +4,10 @@
 
 拦截未经许可的聊天消息;Intercepts unauthorized chat messages
 
+例如：输入 你好 会被拦截当设置前缀为 " 时，输入 "你好 聊天栏输出 你好
+
+Example: Typing Hello will be intercepted; when the prefix is set to ", typing "Hello will output Hello in chat.
+
 🔑 前缀系统
 可自定义聊天前缀（如"、 '、!、say_ 等）;Customizable chat prefixes
 

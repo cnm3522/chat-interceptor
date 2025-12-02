@@ -1,53 +1,47 @@
--------------------------------------------
-Source installation information for modders
--------------------------------------------
-This code follows the Minecraft Forge installation methodology. It will apply
-some small patches to the vanilla MCP source code, giving you and it access 
-to some of the data and functions you need to build a successful mod.
+功能特性;## Features
+🚫 聊天拦截
+默认关闭普通聊天功能;Default disables ordinary chat functionality
 
-Note also that the patches are built against "unrenamed" MCP source code (aka
-srgnames) - this means that you will not be able to read them directly against
-normal code.
+拦截未经许可的聊天消息;Intercepts unauthorized chat messages
 
-Source pack installation information:
+🔑 前缀系统
+可自定义聊天前缀（如"、 '、!、say_ 等）;Customizable chat prefixes
 
-Standalone source installation
-==============================
+支持前缀绑定/取消;Supports prefix binding/unbinding
 
-See the Forge Documentation online for more detailed instructions:
-http://mcforge.readthedocs.io/en/latest/gettingstarted/
+兼容 Baritone 的 # 命令系统;Compatible with Baritone's # command system
 
-Step 1: Open your command-line and browse to the folder where you extracted the zip file.
+⚙️ 客户端管理
+/chat 命令管理系统;/chat command management system
 
-Step 2: You're left with a choice.
-If you prefer to use Eclipse:
-1. Run the following command: "gradlew genEclipseRuns" (./gradlew genEclipseRuns if you are on Mac/Linux)
-2. Open Eclipse, Import > Existing Gradle Project > Select Folder 
-   or run "gradlew eclipse" to generate the project.
-(Current Issue)
-4. Open Project > Run/Debug Settings > Edit runClient and runServer > Environment
-5. Edit MOD_CLASSES to show [modid]%%[Path]; 2 times rather then the generated 4.
+设置本地保存;Settings saved locally
 
-If you prefer to use IntelliJ:
-1. Open IDEA, and import project.
-2. Select your build.gradle file and have it import.
-3. Run the following command: "gradlew genIntellijRuns" (./gradlew genIntellijRuns if you are on Mac/Linux)
-4. Refresh the Gradle Project in IDEA if required.
+纯客户端运行，不影响服务器;Runs purely on the client side, does not affect the server
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can run "gradlew --refresh-dependencies" to refresh the local cache. "gradlew clean" to reset everything {this does not affect your code} and then start the processs again.
+🎮 兼容性
+完全兼容 Baritone 模组;Fully compatible with Baritone mod
 
-Should it still not work, 
-Refer to #ForgeGradle on EsperNet for more information about the gradle environment.
-or the Forge Project Discord discord.gg/UvedJ9m
+支持所有 Minecraft 命令;Supports all Minecraft commands
 
-Forge source installation
-=========================
-MinecraftForge ships with this code and installs it as part of the forge
-installation process, no further action is required on your part.
+单人游戏和多人游戏都适用;Applicable to both single-player and multiplayer games
 
-LexManos' Install Video
-=======================
-https://www.youtube.com/watch?v=8VEdtQLuLO0&feature=youtu.be
+安装方法;## Installation
+前置要求;### Prerequisites
+Minecraft 1.12.2
 
-For more details update more often refer to the Forge Forums:
-http://www.minecraftforge.net/forum/index.php/topic,14048.0.html
+Forge 14.23.5.2860 或更高版本;Forge 14.23.5.2860 or higher
+
+安装步骤;### Installation Steps
+下载最新版本的 chatinterceptor-x.x.x.jar;Download the latest version of chatinterceptor-x.x.x.jar
+
+将文件放入 .minecraft/mods/ 文件夹;Place the file into the .minecraft/mods/ folder
+
+启动 Minecraft 1.12.2 Forge 客户端;Launch the Minecraft 1.12.2 Forge client
+
+使用方法;## Usage
+
+基本命令;### Basic Commands
+/chat set on          # 开启聊天;Enable chat
+/chat set off         # 关闭聊天;Disable chat
+/chat set key <前缀>   # 设置聊天前缀;Set chat prefix
+/chat info            # 查看当前设置;View current settings

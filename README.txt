@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 拦截未经许可的聊天消息;Intercepts unauthorized chat messages
 
 例如：输入 你好 会被拦截当设置前缀为 ‘ 时，输入 ’你好 聊天栏输出 你好
@@ -25,4 +25,4 @@ It can automatically input the prefix by pressing a key, just like pressing / to
 /chat set off # 关闭聊天;Disable chat
 /chat set key <前缀> # 设置聊天前缀;Set chat prefix
 /chat info # 查看当前设置;View current settings
->>>>>>> 5c194e579f2332dd71c85616b77c75107395cecb
+
